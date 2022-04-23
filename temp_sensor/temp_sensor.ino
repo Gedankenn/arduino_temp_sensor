@@ -1,71 +1,112 @@
-// Import required libraries
-#include <Arduino.h>
+/*
+  Rui Santos
+  Complete project details at https://RandomNerdTutorials.com/esp32-esp8266-mysql-database-php/
+  
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files.
+  
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+*/
+
 #include <ESP8266WiFi.h>
-#include <Hash.h>
-//#include <ESPAsyncTCP.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
+
+
+#include <Wire.h>
 
 // Replace with your network credentials
 const char* ssid = "NotYourWiFi";
 const char* password = "karalhodesenha";
 
 #define DHTPIN 5     // Digital pin connected to the DHT sensor
-
-// Uncomment the type of sensor in use:
-#define DHTTYPE    DHT11     // DHT 11
-//#define DHTTYPE    DHT22     // DHT 22 (AM2302)
-//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
-
 DHT dht(DHTPIN, DHTTYPE);
 
-// current temperature & humidity, updated in loop()
-float t = 0.0;
-float h = 0.0;
+// REPLACE with your Domain name and URL path or IP address with path
+const char* serverName = "http://example.com/post-esp-data.php";
 
-unsigned long previousMillis = 0;    // will store last time DHT was updated
-const long interval = 10000;  
+// Keep this API Key value to be compatible with the PHP code provided in the project page. 
+// If you change the apiKeyValue value, the PHP file /post-esp-data.php also needs to have the same key 
+String apiKeyValue = "tPmAT5Ab3j7F9";
 
-void setup(){
-  // Serial port for debugging purposes
+String sensorName = "ESP-FABIO";
+String sensorLocation = "Escritorio";
+
+/*#include <SPI.h>
+#define BME_SCK 18
+#define BME_MISO 19
+#define BME_MOSI 23
+#define BME_CS 5*/
+
+void setup() {
   Serial.begin(115200);
-  dht.begin();
   
-  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
-  Serial.println("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println(".");
+  Serial.println("Connecting");
+  while(WiFi.status() != WL_CONNECTED) { 
+    delay(500);
+    Serial.print(".");
   }
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  // (you can also pass in a Wire library object like &Wire2)
+  dht.begin();
 }
 
-  void loop(){  
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time you updated the DHT values
-    previousMillis = currentMillis;
-    // Read temperature as Celsius (the default)
-    float newT = dht.readTemperature();
-    // Read temperature as Fahrenheit (isFahrenheit = true)
-    //float newT = dht.readTemperature(true);
-    // if temperature read failed, don't change t value
-    if (isnan(newT)) {
-      Serial.println("Failed to read from DHT sensor!");
+void loop() {
+  //Check WiFi connection status
+  if(WiFi.status()== WL_CONNECTED){
+    WiFiClient client;
+    HTTPClient http;
+    
+    // Your Domain name with URL path or IP address with path
+    http.begin(client, serverName);
+    
+    // Specify content-type header
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    
+    // Prepare your HTTP POST request data
+    String httpRequestData = "api_key=" + apiKeyValue + "&sensor=" + sensorName
+                          + "&location=" + sensorLocation + "&value1=" + String(dht.readTemperature())
+                          + "&value2=" + String(dht.readHumidity()) + "";
+    Serial.print("httpRequestData: ");
+    Serial.println(httpRequestData);
+    
+    // You can comment the httpRequestData variable above
+    // then, use the httpRequestData variable below (for testing purposes without the BME280 sensor)
+    //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&location=Office&value1=24.75&value2=49.54&value3=1005.14";
+
+    // Send HTTP POST request
+    int httpResponseCode = http.POST(httpRequestData);
+     
+    // If you need an HTTP request with a content type: text/plain
+    //http.addHeader("Content-Type", "text/plain");
+    //int httpResponseCode = http.POST("Hello, World!");
+    
+    // If you need an HTTP request with a content type: application/json, use the following:
+    //http.addHeader("Content-Type", "application/json");
+    //int httpResponseCode = http.POST("{\"value1\":\"19\",\"value2\":\"67\",\"value3\":\"78\"}");
+        
+    if (httpResponseCode>0) {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
     }
     else {
-      t = newT;
-      Serial.println(t);
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
     }
-    // Read Humidity
-    float newH = dht.readHumidity();
-    // if humidity read failed, don't change h value 
-    if (isnan(newH)) {
-      Serial.println("Failed to read from DHT sensor!");
-    }
-    else {
-      h = newH;
-      Serial.println(h);
-    }
+    // Free resources
+    http.end();
   }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+  //Send an HTTP POST request every 30 seconds
+  delay(30000);  
 }
