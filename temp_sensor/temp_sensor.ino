@@ -24,10 +24,12 @@ const char* ssid = "NotYourWiFi";
 const char* password = "karalhodesenha";
 
 #define DHTPIN 5     // Digital pin connected to the DHT sensor
+#define DHTTYPE    DHT11     // DHT 11
+
 DHT dht(DHTPIN, DHTTYPE);
 
 // REPLACE with your Domain name and URL path or IP address with path
-const char* serverName = "http://example.com/post-esp-data.php";
+const char* serverName = "192.168.100.124/www/post-esp-data.php";
 
 // Keep this API Key value to be compatible with the PHP code provided in the project page. 
 // If you change the apiKeyValue value, the PHP file /post-esp-data.php also needs to have the same key 
