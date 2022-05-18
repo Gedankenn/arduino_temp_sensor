@@ -27,7 +27,7 @@ try:
                 print("location= ", location)
                 print("temp= ",temp)
                 print("humid= ",humid)
-                
+                print("tempo= ",datetime.datetime.now())
                 
                 try:
                     connection = pg.connect(user = "th00r",
