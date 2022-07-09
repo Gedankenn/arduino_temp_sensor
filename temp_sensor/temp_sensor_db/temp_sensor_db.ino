@@ -78,7 +78,7 @@ void loop()
     }
     media_t = media_t/i_t;
     media_h = media_h/i_h;
-    string = String("Fabio,Sala,")+String(media_t)+String(",")+String(media_h);
+    string = String("Fabio,Escritorio,")+String(media_t)+String(",")+String(media_h);
     client.print(string);
     client.stop();
     Serial.println(string);

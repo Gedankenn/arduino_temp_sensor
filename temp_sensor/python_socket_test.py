@@ -1,21 +1,11 @@
 import socket
+from ssl import SOL_SOCKET
 import time 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(('0.0.0.0', 1337 ))
-s.listen(0)                 
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.bind(('', 1337 ))              
+s2 = socket(socket.AF_INET, socket.SOCK_DGRAM)
+s2.setsockopt(SOL_SOCKET, socket.SO_BROADCAST,1)
+s2.sendto('testando',('192.168.100.255',1337))
 
-while True:
-    client, addr = s.accept()
-    client.settimeout(5)
-    while True:
-        content = client.recv(1024)
-        if len(content) ==0:
-            break
-        if str(content,'utf-8') == '\r\n':
-            continue
-        else:
-            content=str(content,'utf-8')
-            content=content.split(',')
-            print(content)
-            print(content[1])
-    client.close()
+m = s.recvfrom(1024)
+print(m)
