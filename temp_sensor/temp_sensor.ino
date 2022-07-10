@@ -50,6 +50,7 @@ void setup()
     dht2.begin();
     delay(200);
     udp.begin(port);
+    randomSeed(analogRead(0));
 }
 
 void loop()
@@ -94,8 +95,9 @@ void loop()
       }
       media_t = media_t/i_t;
       media_h = media_h/i_h;
-      string = String("Fabio,Escritorio,")+String(media_t)+String(",")+String(media_h);
+      string = String("Fabio,Sala,")+String(media_t)+String(",")+String(media_h);
       udp.beginPacket(IP,port);
+      delay(random(300));
       udp.print(string);
       udp.endPacket();
       Serial.println(string);
