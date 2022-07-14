@@ -9,11 +9,9 @@ s2.sendto(b'testando',('192.168.100.255',1337))
 
 m = s.recvfrom(1024)
 m = s.recvfrom(1024)
-print(m)
-
-m = s.recvfrom(1024)
 m = m[0].decode('ascii')
 print(m)
 
 m = s.recvfrom(1024)
+m = m[0].decode('ascii')
 print(m)
