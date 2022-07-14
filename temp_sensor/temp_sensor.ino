@@ -18,7 +18,7 @@ WiFiUDP udp;
 
 String apiKeyValue = "tPmAT5Ab3j7F9";
 DHT dht(DHTPIN, DHTTYPE);
-DHT dht2(DHTPIN2, DHTTYPE);
+//DHT dht2(DHTPIN2, DHTTYPE);
 unsigned long int last_time = millis();
 const uint16_t port = 1337;
 //const char * host = "192.168.100.4";
@@ -47,15 +47,13 @@ void setup()
     }
     dht.begin();
     delay(100);
-    dht2.begin();
-    delay(200);
     udp.begin(port);
     randomSeed(analogRead(0));
 }
 
 void loop()
 {
-    
+    delay(500);
     media_t = 0;
     media_h = 0;
     i_t = 0;
@@ -95,9 +93,9 @@ void loop()
       }
       media_t = media_t/i_t;
       media_h = media_h/i_h;
-      string = String("Fabio,Sala,")+String(media_t)+String(",")+String(media_h);
-      udp.beginPacket(IP,port);
+      string = String("Fabio,Quartinho,")+String(media_t)+String(",")+String(media_h);
       delay(random(300));
+      udp.beginPacket(IP,port);
       udp.print(string);
       udp.endPacket();
       Serial.println(string);

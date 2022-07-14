@@ -43,4 +43,4 @@ while True:
         connection.close()
         i=i+1
         print("ok")
-    time.sleep(5750)
+    time.sleep(900)
