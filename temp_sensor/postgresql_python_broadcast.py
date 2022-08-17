@@ -11,8 +11,7 @@ s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s2.setsockopt(SOL_SOCKET, socket.SO_BROADCAST,1)
 
 while True:
-    s2.sendto(b'testando',('192.168.100.255',1337))
-    pacote = s.recvfrom(1024)
+    s2.sendto(b'testando',('192.168.100.255',1338))
     i=0
     while i<3:
         pacote = s.recvfrom(1024)
