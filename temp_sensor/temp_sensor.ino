@@ -15,6 +15,7 @@
 #define esp "FABIO"
 #define location "Sala"
 WiFiUDP udp;
+WiFiUDP udp2;
 
 String apiKeyValue = "tPmAT5Ab3j7F9";
 DHT dht(DHTPIN, DHTTYPE);
@@ -48,6 +49,7 @@ void setup()
     dht.begin();
     delay(100);
     udp.begin(port);
+    udp2.begin(port+1);
     randomSeed(analogRead(0));
 }
 
@@ -59,16 +61,16 @@ void loop()
     i_t = 0;
     i_h = 0;
     i=0;
-    packetsize = udp.parsePacket();
+    packetsize = udp2.parsePacket();
     if(packetsize)
     {
       Serial.print("Received packet of size: ");
       Serial.println(packetsize);
       Serial.print("From: ");
-      Serial.println((IPAddress)udp.remoteIP());
+      Serial.println((IPAddress)udp2.remoteIP());
 
       //Reading the packet
-      udp.read(packetbuffer, 197);
+      udp2.read(packetbuffer, 197);
       Serial.print("Message: ");
       Serial.println(packetbuffer);
       while(i<14)
