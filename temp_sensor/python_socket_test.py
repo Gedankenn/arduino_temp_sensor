@@ -1,20 +1,29 @@
 import socket
 from ssl import SOL_SOCKET
-import time 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(('', 1337 ))              
+import time
+from threading import Thread
+
+
 s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s2.setsockopt(SOL_SOCKET, socket.SO_BROADCAST,1)
-s2.sendto(b'testando',('192.168.100.255',1338))
 
-m = s.recvfrom(1024)
-m = m[0].decode('ascii')
-print(m)
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.bind(('', 1337 ))
 
-# m = s.recvfrom(1024)
-# m = m[0].decode('ascii')
-# print(m)
+def send_server():
+    while True:
+        s2.sendto(b'testando',('192.168.100.255',1338))
+        time.sleep(10)
 
-# m = s.recvfrom(1024)
-# m = m[0].decode('ascii')
-# print(m)
+def receiv_server():
+    while True:
+        m = s.recvfrom(1024)
+        m = m[0].decode('ascii')
+        print(m)
+
+
+t1 = Thread(target=send_server)
+t2 = Thread(target=receiv_server)
+
+t1.start()
+t2.start()
