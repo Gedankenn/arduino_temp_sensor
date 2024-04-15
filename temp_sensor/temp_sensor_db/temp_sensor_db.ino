@@ -52,28 +52,31 @@ void setup()
     randomSeed(analogRead(0));
 }
 
-void loop()
+bool read_message(void)
 {
-    delay(500);
-    media_t = 0;
-    media_h = 0;
-    i_t = 0;
-    i_h = 0;
-    i=0;
-    packetsize = udp2.parsePacket();
-    if(packetsize)
+    if(udp2.parsePacket())
     {
-      Serial.print("Received packet of size: ");
-      Serial.println(packetsize);
-      Serial.print("From: ");
-      Serial.println((IPAddress)udp2.remoteIP());
+        packetsize = udp2.parsePacket();
+        if(packetsize)
+        {
+            Serial.print("Received packet of size: ");
+            Serial.println(packetsize);
+            Serial.print("From: ");
+            Serial.println((IPAddress)udp2.remoteIP());
+            //Reading the packet
+            udp2.read(packetbuffer, 197);
+            Serial.print("Message: ");
+            Serial.println(packetbuffer);
+            return true;
+        }
+    }
+    return false;
+}
 
-      //Reading the packet
-      udp2.read(packetbuffer, 197);
-      Serial.print("Message: ");
-      Serial.println(packetbuffer);
-      while(i<5)
-      {
+bool read_sensors(void)
+{
+    while(i<5)
+    {
         aux = dht.readTemperature();
         i_t++;
         media_t=media_t+aux;
@@ -82,14 +85,49 @@ void loop()
         i_h++;
         media_h=media_h+aux;
         i++;
-      }
-      media_t = media_t/i_t;
-      media_h = media_h/i_h;
-      string = String("Fabio,Quartinho,")+String(media_t)+String(",")+String(media_h);
-      delay(random(300));
-      udp.beginPacket(IP,port);
-      udp.print(string);
-      udp.endPacket();
-      Serial.println(string);
     }
+    media_t = media_t/i_t;
+    media_h = media_h/i_h;
+    return true;
+}
+
+bool send_data(void)
+{
+    string = String("01,esp_1,Interno,")+String(media_t)+String(",")+String(media_h);
+    delay(random(300));
+    udp.beginPacket(IP,port);
+    udp.print(string);
+    udp.endPacket();
+    Serial.println(string);
+    return true;
+}
+
+bool check_connection(void)
+{
+    if(WiFi.status() != WL_CONNECTED)
+    {
+        Serial.println("Connection lost");
+        return false;
+    }
+    return true;
+}
+
+void loop()
+{
+    if(check_connection())
+    {
+        if(read_message())
+        {
+            if(read_sensors())
+            {
+                send_data();
+                i = 0;
+                i_t = 0;
+                i_h = 0;
+                media_t = 0;
+                media_h = 0;
+            }
+        }
+    }
+    delay(1000);
 }
