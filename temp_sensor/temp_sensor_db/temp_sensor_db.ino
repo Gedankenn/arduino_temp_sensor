@@ -1,26 +1,28 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
+//#include <WiFiClient.h>
+#include <WiFiUdp.h>
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
  
-#define SSID "NotYourWiFi"
-#define PASSWD "karalhodesenha"
+#define SSID "NaoNegociavel"
+#define PASSWD "mostraasteta"
 
 #define DHTPIN 5     // Digital pin connected to the DHT sensor
-#define DHTTYPE    DHT11     // DHT 11
-#define DHTPIN2 4
+#define DHTTYPE    DHT22    // DHT 22
 #define esp "FABIO"
 #define location "Sala"
-
+WiFiUDP udp;
+WiFiUDP udp2;
 
 String apiKeyValue = "tPmAT5Ab3j7F9";
 DHT dht(DHTPIN, DHTTYPE);
-DHT dht2(DHTPIN2, DHTTYPE);
+//DHT dht2(DHTPIN2, DHTTYPE);
 unsigned long int last_time = millis();
 const uint16_t port = 1337;
-const char * host = "192.168.100.4";
+//const char * host = "192.168.100.4";
+IPAddress IP(192,168,100,255);
 String string;
 int i =0 ;
 float i_t = 0;
@@ -29,6 +31,9 @@ float aux = 0;
 float media_t = 0;
 float media_h = 0;
 WiFiClient client;
+int packetsize;
+char packetbuffer[197];
+
 void setup()
 {
     Serial.begin(115200);
@@ -41,46 +46,50 @@ void setup()
         Serial.print(".");
     }
     dht.begin();
-    dht2.begin();
+    delay(100);
+    udp.begin(port);
+    udp2.begin(port+1);
+    randomSeed(analogRead(0));
 }
 
 void loop()
 {
-    if (!client.connect(host, port))
-    {
-        Serial.println("Connection to host failed");
-        delay(1000);
-        return;
-    }
-    Serial.println("Connected to server successful!");
+    delay(500);
     media_t = 0;
     media_h = 0;
     i_t = 0;
     i_h = 0;
     i=0;
-    while(i<14)
+    packetsize = udp2.parsePacket();
+    if(packetsize)
     {
-      aux = dht.readTemperature();
-      while(aux == NULL)
+      Serial.print("Received packet of size: ");
+      Serial.println(packetsize);
+      Serial.print("From: ");
+      Serial.println((IPAddress)udp2.remoteIP());
+
+      //Reading the packet
+      udp2.read(packetbuffer, 197);
+      Serial.print("Message: ");
+      Serial.println(packetbuffer);
+      while(i<5)
       {
-        aux =  dht.readTemperature();
-      }
-      i_t++;
-      media_t=media_t+aux;
-      aux = dht.readHumidity();
-      while(aux == NULL)
-      {
+        aux = dht.readTemperature();
+        i_t++;
+        media_t=media_t+aux;
+
         aux = dht.readHumidity();
+        i_h++;
+        media_h=media_h+aux;
+        i++;
       }
-      i_h++;
-      media_h=media_h+aux;
-      i++;
+      media_t = media_t/i_t;
+      media_h = media_h/i_h;
+      string = String("Fabio,Quartinho,")+String(media_t)+String(",")+String(media_h);
+      delay(random(300));
+      udp.beginPacket(IP,port);
+      udp.print(string);
+      udp.endPacket();
+      Serial.println(string);
     }
-    media_t = media_t/i_t;
-    media_h = media_h/i_h;
-    string = String("Fabio,Escritorio,")+String(media_t)+String(",")+String(media_h);
-    client.print(string);
-    client.stop();
-    Serial.println(string);
-    delay(900000);
 }
