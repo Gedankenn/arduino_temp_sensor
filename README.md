@@ -55,7 +55,7 @@ CREATE TABLE SensorData (esp TEXT, localizacao TEXT, temperatura TEXT, humidade 
    - Wi-Fi: `cp temp_sensor/temp_sensor_db/secrets.h.example temp_sensor/temp_sensor_db/secrets.h` and set `SSID` / `PASSWD`.
    - PostgreSQL: `cp temp_sensor/.env.example temp_sensor/.env` and set `PG_USER`, `PG_PASSWORD`, `PG_HOST` (optional `PG_PORT`, `PG_DATABASE`).
    
-   Both files are gitignored. The broadcast address `192.168.100.255` is hard-coded in both, so change it to match your network.
+   Both files are gitignored. The broadcast address `192.168.100.255` is hard-coded in both the sketch and the receiver, so change it to match your network.
 
 4. Upload the sketch to the ESP8266 and run the receiver:
 ```
