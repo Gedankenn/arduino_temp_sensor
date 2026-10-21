@@ -31,7 +31,7 @@ The receiver reads the last four fields (`esp`, `location`, `temperature`, `humi
 - ESP8266 board (Arduino core for ESP8266)
 - DHT22 sensor
 - Arduino libraries: "DHT sensor library" and "Adafruit Unified Sensor"
-- Python 3 with `psycopg2`
+- Python 3 with `psycopg2` and `python-dotenv`
 - PostgreSQL
 - Grafana
 
@@ -51,11 +51,15 @@ CREATE DATABASE "APS_BANCO";
 CREATE TABLE SensorData (esp TEXT, localizacao TEXT, temperatura TEXT, humidade TEXT, tempo TIMESTAMP);
 ```
 
-3. Set your Wi-Fi network in the `SSID` / `PASSWD` defines of the sketch, and the PostgreSQL user, password and host in `pg.connect(...)` in the Python script. The broadcast address `192.168.100.255` is hard-coded in both, so change it to match your network.
+3. Credentials are kept out of git:
+   - Wi-Fi: `cp temp_sensor/temp_sensor_db/secrets.h.example temp_sensor/temp_sensor_db/secrets.h` and set `SSID` / `PASSWD`.
+   - PostgreSQL: `cp temp_sensor/.env.example temp_sensor/.env` and set `PG_USER`, `PG_PASSWORD`, `PG_HOST` (optional `PG_PORT`, `PG_DATABASE`).
+   
+   Both files are gitignored. The broadcast address `192.168.100.255` is hard-coded in both, so change it to match your network.
 
 4. Upload the sketch to the ESP8266 and run the receiver:
 ```
-$ pip install psycopg2-binary
+$ pip install psycopg2-binary python-dotenv
 $ python3 temp_sensor/postgresql_python_broadcast.py
 ```
 
