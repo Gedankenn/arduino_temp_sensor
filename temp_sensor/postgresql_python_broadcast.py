@@ -26,11 +26,13 @@ def receiv_server():
 
 def sdb_insert(msg):
     pacote=msg
-    pacote=pacote.split(",")
-    esp=pacote[0]
-    location=pacote[1]
-    temp=pacote[2]
-    humid=pacote[3]
+    pacote=pacote.strip().split(",")
+    # The sketch sends "<id>,<esp>,<location>,<temperature>,<humidity>";
+    # read the last four fields so the columns line up with SensorData.
+    esp=pacote[-4]
+    location=pacote[-3]
+    temp=pacote[-2]
+    humid=pacote[-1]
     print("esp= ",esp)
     print("location= ", location)
     print("temp= ",temp)
