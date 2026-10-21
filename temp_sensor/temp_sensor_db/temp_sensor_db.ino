@@ -54,21 +54,20 @@ void setup()
 
 bool read_message(void)
 {
-    if(udp2.parsePacket())
+    packetsize = udp2.parsePacket();
+    if(packetsize)
     {
-        packetsize = udp2.parsePacket();
-        if(packetsize)
-        {
-            Serial.print("Received packet of size: ");
-            Serial.println(packetsize);
-            Serial.print("From: ");
-            Serial.println((IPAddress)udp2.remoteIP());
-            //Reading the packet
-            udp2.read(packetbuffer, 197);
-            Serial.print("Message: ");
-            Serial.println(packetbuffer);
-            return true;
-        }
+        Serial.print("Received packet of size: ");
+        Serial.println(packetsize);
+        Serial.print("From: ");
+        Serial.println((IPAddress)udp2.remoteIP());
+        //Reading the packet
+        int len = udp2.read(packetbuffer, sizeof(packetbuffer) - 1);
+        if(len < 0) len = 0;
+        packetbuffer[len] = '\0';
+        Serial.print("Message: ");
+        Serial.println(packetbuffer);
+        return true;
     }
     return false;
 }
