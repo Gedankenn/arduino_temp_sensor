@@ -15,7 +15,7 @@ ESP8266 + DHT22 ──UDP broadcast :1337──▶ Python receiver ──psycopg
 2. The ESP8266 sketch (`temp_sensor/temp_sensor_db/temp_sensor_db.ino`) waits for a trigger on port 1338, averages 5 temperature/humidity readings from the DHT22, and broadcasts a CSV line (`01,esp_1,Interno,<temperature>,<humidity>`) to `192.168.100.255:1337`.
 3. The Python receiver splits the message and inserts it into the `SensorData` table of the `APS_BANCO` database.
 
-> **Known issue:** the sketch sends 5 comma-separated fields, but the receiver reads only the first 4 as `esp, location, temp, humid`. As committed, the columns end up shifted (`esp`=`01`, `localizacao`=`esp_1`, `temperatura`=`Interno`, `humidade`=temperature), so either the message format or the parser needs adjusting.
+The receiver reads the last four fields (`esp`, `location`, `temperature`, `humidity`) into `SensorData`; the leading `01` is ignored.
 
 ## Files
 
