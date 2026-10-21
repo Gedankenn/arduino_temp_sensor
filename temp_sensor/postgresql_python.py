@@ -1,7 +1,11 @@
+import os
 import psycopg2 as pg
+from dotenv import load_dotenv
 import socket
 import time
 import datetime
+
+load_dotenv()  # PG_* settings from temp_sensor/.env (gitignored)
 
 port = 1337
 
@@ -30,11 +34,11 @@ try:
                 print("tempo= ",datetime.datetime.now())
                 
                 try:
-                    connection = pg.connect(user = "REDACTED",
-                                            password = "REDACTED",
-                                            host = "REDACTED",
-                                            port = "5432",
-                                            database = "APS_BANCO")
+                    connection = pg.connect(user = os.environ["PG_USER"],
+                                            password = os.environ["PG_PASSWORD"],
+                                            host = os.environ["PG_HOST"],
+                                            port = os.environ.get("PG_PORT", "5432"),
+                                            database = os.environ.get("PG_DATABASE", "APS_BANCO"))
                     
                     cursor = connection.cursor()
                     query = "INSERT INTO SensorData (esp, localizacao, temperatura, humidade, tempo) VALUES(%s, %s, %s, %s, %s);"

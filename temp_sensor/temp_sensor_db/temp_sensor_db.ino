@@ -6,8 +6,7 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
  
-#define SSID "REDACTED"
-#define PASSWD "REDACTED"
+#include "secrets.h"  // SSID / PASSWD, gitignored (see secrets.h.example)
 
 #define DHTPIN 5     // Digital pin connected to the DHT sensor
 #define DHTTYPE    DHT22    // DHT 22
@@ -16,7 +15,6 @@
 WiFiUDP udp;
 WiFiUDP udp2;
 
-String apiKeyValue = "REDACTED";
 DHT dht(DHTPIN, DHTTYPE);
 //DHT dht2(DHTPIN2, DHTTYPE);
 unsigned long int last_time = millis();
